@@ -1,212 +1,198 @@
-let items = [];
-let invoices = [];
-let userRole = ''; // دور المستخدم
+// تعريف البيانات
+let items = []; // لتخزين الأصناف
+let invoices = []; // لتخزين الفواتير
 
-// تسجيل الدخول
+// دالة لتسجيل الدخول
 function login() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    const loginError = document.getElementById('login-error');
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
 
-    if (username === 'admin' && password === 'admin') {
-        userRole = 'viewer'; // دور المشاهد فقط
-        document.getElementById('admin-actions').style.display = 'none'; // إخفاء أزرار الإضافة
-    } else if (username === 'admin1' && password === 'admin123') {
-        userRole = 'admin'; // دور المدير
-        document.getElementById('admin-actions').style.display = 'block'; // إظهار أزرار الإضافة
+    // تحقق من بيانات تسجيل الدخول
+    if (username === "admin" && password === "admin123") {
+        document.getElementById("loginPage").style.display = "none"; // إخفاء صفحة تسجيل الدخول
+        document.getElementById("dashboardPage").style.display = "block"; // إظهار لوحة التحكم
     } else {
-        loginError.style.display = 'block'; // عرض رسالة الخطأ
-        return;
-    }
-
-    // إظهار الشاشة الرئيسية
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('main-screen').style.display = 'block';
-}
-
-// تسجيل الخروج
-function logout() {
-    document.getElementById('main-screen').style.display = 'none';
-    document.getElementById('login-screen').style.display = 'block';
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
-    userRole = ''; // إعادة تعيين الدور
-}
-
-// عرض نموذج إضافة صنف (للإدارة فقط)
-function showAddItemForm() {
-    if (userRole === 'admin') {
-        document.getElementById('add-item-form').style.display = 'block';
-        document.getElementById('add-invoice-form').style.display = 'none';
+        alert("اسم المستخدم أو كلمة المرور غير صحيحة");
     }
 }
 
-// عرض نموذج إضافة فاتورة (للإدارة فقط)
-function showAddInvoiceForm() {
-    if (userRole === 'admin') {
-        document.getElementById('add-invoice-form').style.display = 'block';
-        document.getElementById('add-item-form').style.display = 'none';
-    }
-}
-
-// عرض قائمة الأصناف
-function viewItems() {
-    document.getElementById('items-list').style.display = 'block';
-    document.getElementById('invoices-list').style.display = 'none';
-    renderItems();
-}
-
-// عرض قائمة الفواتير
-function viewInvoices() {
-    document.getElementById('invoices-list').style.display = 'block';
-    document.getElementById('items-list').style.display = 'none';
-    renderInvoices();
-}
-
-// إضافة صنف جديد
+// دالة لإضافة صنف جديد
 function addItem() {
-    if (userRole === 'admin') {
-        const name = document.getElementById('item-name').value;
-        const type = document.getElementById('item-type').value;
-        const price = document.getElementById('item-price').value;
-        const productionDate = document.getElementById('item-production-date').value;
-        const expiryDate = document.getElementById('item-expiry-date').value;
+    const name = prompt("أدخل اسم الصنف");
+    const type = prompt("أدخل نوع الصنف");
+    const code = prompt("أدخل رقم الصنف");
+    const price = prompt("أدخل السعر");
+    const productionDate = prompt("أدخل تاريخ الإنتاج");
+    const expiryDate = prompt("أدخل تاريخ الانتهاء");
 
-        // تحقق من أن البيانات المطلوبة موجودة
-        if (!name || !type || !price || !productionDate || !expiryDate) {
-            alert("من فضلك أكمل جميع الحقول.");
-            return;
-        }
+    const newItem = {
+        name,
+        type,
+        code,
+        price,
+        productionDate,
+        expiryDate
+    };
 
-        const newItem = { name, type, price, productionDate, expiryDate };
-        items.push(newItem);
-
-        cancelAddItem();
-        renderItems();
-    } else {
-        alert("لا تملك صلاحية الإضافة.");
-    }
+    items.push(newItem);
+    displayItems();
 }
 
-// إضافة فاتورة جديدة
+// دالة لإضافة فاتورة جديدة
 function addInvoice() {
-    if (userRole === 'admin') {
-        const itemName = document.getElementById('invoice-item-name').value;
-        const itemType = document.getElementById('invoice-item-type').value;
-        const price = document.getElementById('invoice-price').value;
-        const counter = document.getElementById('invoice-counter').value;
-        const total = price * counter;
+    const itemName = prompt("أدخل اسم الصنف");
+    const itemCode = prompt("أدخل رقم الصنف");
+    const price = prompt("أدخل السعر");
+    const quantity = prompt("أدخل العدد الإجمالي");
+    const date = prompt("أدخل التاريخ");
 
-        // تحقق من أن البيانات المطلوبة موجودة
-        if (!itemName || !itemType || !price || !counter) {
-            alert("من فضلك أكمل جميع الحقول.");
-            return;
-        }
+    const newInvoice = {
+        itemName,
+        itemCode,
+        price,
+        quantity,
+        date
+    };
 
-        const newInvoice = { itemName, itemType, price, counter, total };
-        invoices.push(newInvoice);
-
-        cancelAddInvoice();
-        renderInvoices();
-    } else {
-        alert("لا تملك صلاحية الإضافة.");
-    }
+    invoices.push(newInvoice);
+    displayInvoices();
 }
 
-// إلغاء إضافة صنف
-function cancelAddItem() {
-    document.getElementById('add-item-form').style.display = 'none';
-    // مسح البيانات بعد الإضافة
-    document.getElementById('item-name').value = '';
-    document.getElementById('item-type').value = '';
-    document.getElementById('item-price').value = '';
-    document.getElementById('item-production-date').value = '';
-    document.getElementById('item-expiry-date').value = '';
-}
+// دالة لعرض الأصناف
+function displayItems() {
+    const tableBody = document.querySelector("#itemsTable tbody");
+    tableBody.innerHTML = '';
 
-// إلغاء إضافة فاتورة
-function cancelAddInvoice() {
-    document.getElementById('add-invoice-form').style.display = 'none';
-    // مسح البيانات بعد الإضافة
-    document.getElementById('invoice-item-name').value = '';
-    document.getElementById('invoice-item-type').value = '';
-    document.getElementById('invoice-price').value = '';
-    document.getElementById('invoice-counter').value = '';
-}
-
-// عرض البيانات في جدول الأصناف
-function renderItems() {
-    const table = document.getElementById('items-table').getElementsByTagName('tbody')[0];
-    table.innerHTML = '';
     items.forEach((item, index) => {
-        const row = table.insertRow();
-        row.insertCell(0).innerHTML = `<input type="checkbox" class="select-item" onclick="toggleSelectItem(${index})">`;
-        row.insertCell(1).innerText = item.name;
-        row.insertCell(2).innerText = item.type;
-        row.insertCell(3).innerText = item.price + ' ريال';
-        row.insertCell(4).innerText = item.productionDate;
-        row.insertCell(5).innerText = item.expiryDate;
-        row.insertCell(6).innerHTML = `<button onclick="deleteItem(${index})">حذف</button>`;
+        const row = document.createElement("tr");
+        
+        row.innerHTML = `
+            <td><input type="checkbox" class="itemCheckbox" data-index="${index}"></td>
+            <td>${item.name}</td>
+            <td>${item.type}</td>
+            <td>${item.code}</td>
+            <td>${item.price}</td>
+            <td>${item.productionDate}</td>
+            <td>${item.expiryDate}</td>
+        `;
+        
+        tableBody.appendChild(row);
     });
 }
 
-// عرض البيانات في جدول الفواتير
-function renderInvoices() {
-    const table = document.getElementById('invoices-table').getElementsByTagName('tbody')[0];
-    table.innerHTML = '';
+// دالة لعرض الفواتير
+function displayInvoices() {
+    const tableBody = document.querySelector("#invoicesTable tbody");
+    tableBody.innerHTML = '';
+
     invoices.forEach((invoice, index) => {
-        const row = table.insertRow();
-        row.insertCell(0).innerHTML = `<input type="checkbox" class="select-invoice" onclick="toggleSelectInvoice(${index})">`;
-        row.insertCell(1).innerText = invoice.itemName;
-        row.insertCell(2).innerText = invoice.itemType;
-        row.insertCell(3).innerText = invoice.price + ' ريال';
-        row.insertCell(4).innerText = invoice.total + ' ريال';
-        row.insertCell(5).innerHTML = `<button onclick="deleteInvoice(${index})">حذف</button>`;
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td><input type="checkbox" class="invoiceCheckbox" data-index="${index}"></td>
+            <td>${invoice.itemName}</td>
+            <td>${invoice.itemCode}</td>
+            <td>${invoice.price}</td>
+            <td>${invoice.quantity}</td>
+            <td>${invoice.date}</td>
+        `;
+
+        tableBody.appendChild(row);
     });
 }
 
-// حذف صنف
-function deleteItem(index) {
-    items.splice(index, 1);
-    renderItems();
-}
-
-// حذف فاتورة
-function deleteInvoice(index) {
-    invoices.splice(index, 1);
-    renderInvoices();
-}
-
-// طباعة الأصناف
+// دالة لطباعة الأصناف
 function printItems() {
-    let printWindow = window.open('', '_blank');
-    printWindow.document.write('<html><head><title>طباعة الأصناف</title><style>table {width: 100%; border-collapse: collapse;} th, td {border: 1px solid #ddd; padding: 8px; text-align: center;} th {background-color: #0044cc; color: white;} tr:nth-child(even) {background-color: #f9f9f9;} </style></head><body>');
-    printWindow.document.write('<h1 style="text-align:center; color:red;">السنمي للأدوية</h1>');
-    printWindow.document.write('<table><thead><tr><th>اسم الصنف</th><th>النوع</th><th>السعر</th><th>تاريخ الإنتاج</th><th>تاريخ انتهاء الصلاحية</th></tr></thead><tbody>');
-    items.forEach(item => {
-        printWindow.document.write(`<tr><td>${item.name}</td><td>${item.type}</td><td>${item.price} ريال</td><td>${item.productionDate}</td><td>${item.expiryDate}</td></tr>`);
+    const selectedItems = document.querySelectorAll(".itemCheckbox:checked");
+    let content = `
+        <div style="text-align:center; font-size: 36px; color: red; font-weight: bold;">السنمي للأدوية</div>
+        <div style="text-align:center; font-size: 20px; color: red;">دكتور برهان السنمي</div>
+        <div style="text-align:center; font-size: 20px; color: red;">الرقم: 775356423</div>
+        <div style="text-align:center; font-size: 20px; color: red;">التاريخ: ${new Date().toLocaleDateString()} - الوقت: ${new Date().toLocaleTimeString()}</div>
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>اسم الصنف</th>
+                    <th>نوع الصنف</th>
+                    <th>رقم الصنف</th>
+                    <th>السعر</th>
+                    <th>تاريخ الإنتاج</th>
+                    <th>تاريخ الانتهاء</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    selectedItems.forEach(item => {
+        const index = item.getAttribute("data-index");
+        const selectedItem = items[index];
+        
+        content += `
+            <tr>
+                <td>${selectedItem.name}</td>
+                <td>${selectedItem.type}</td>
+                <td>${selectedItem.code}</td>
+                <td>${selectedItem.price}</td>
+                <td>${selectedItem.productionDate}</td>
+                <td>${selectedItem.expiryDate}</td>
+            </tr>
+        `;
     });
-    printWindow.document.write('</tbody></table>');
-    printWindow.document.write('<footer style="position:fixed; bottom:10px; width:100%; text-align:center;">');
-    printWindow.document.write('التاريخ: ' + new Date().toLocaleString() + ' | المهندس: إبراهيم عبدالله أحمد علي السنمي | الرقم: 778091233</footer>');
-    printWindow.document.write('</body></html>');
+
+    content += `
+            </tbody>
+        </table>
+    `;
+
+    const printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write(content);
     printWindow.document.close();
     printWindow.print();
 }
 
-// طباعة الفواتير
+// دالة لطباعة الفواتير
 function printInvoices() {
-    let printWindow = window.open('', '_blank');
-    printWindow.document.write('<html><head><title>طباعة الفواتير</title><style>table {width: 100%; border-collapse: collapse;} th, td {border: 1px solid #ddd; padding: 8px; text-align: center;} th {background-color: #0044cc; color: white;} tr:nth-child(even) {background-color: #f9f9f9;} </style></head><body>');
-    printWindow.document.write('<h1 style="text-align:center; color:red;">السنمي للأدوية</h1>');
-    printWindow.document.write('<table><thead><tr><th>اسم الصنف</th><th>النوع</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>');
-    invoices.forEach(invoice => {
-        printWindow.document.write(`<tr><td>${invoice.itemName}</td><td>${invoice.itemType}</td><td>${invoice.price} ريال</td><td>${invoice.total} ريال</td></tr>`);
+    const selectedInvoices = document.querySelectorAll(".invoiceCheckbox:checked");
+    let content = `
+        <div style="text-align:center; font-size: 36px; color: red; font-weight: bold;">السنمي للأدوية</div>
+        <div style="text-align:center; font-size: 20px; color: red;">دكتور برهان السنمي</div>
+        <div style="text-align:center; font-size: 20px; color: red;">الرقم: 775356423</div>
+        <div style="text-align:center; font-size: 20px; color: red;">التاريخ: ${new Date().toLocaleDateString()} - الوقت: ${new Date().toLocaleTimeString()}</div>
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>اسم الصنف</th>
+                    <th>رقم الصنف</th>
+                    <th>السعر</th>
+                    <th>العدد الإجمالي</th>
+                    <th>التاريخ</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    selectedInvoices.forEach(invoice => {
+        const index = invoice.getAttribute("data-index");
+        const selectedInvoice = invoices[index];
+        
+        content += `
+            <tr>
+                <td>${selectedInvoice.itemName}</td>
+                <td>${selectedInvoice.itemCode}</td>
+                <td>${selectedInvoice.price}</td>
+                <td>${selectedInvoice.quantity}</td>
+                <td>${selectedInvoice.date}</td>
+            </tr>
+        `;
     });
-    printWindow.document.write('</tbody></table>');
-    printWindow.document.write('<footer style="position:fixed; bottom:10px; width:100%; text-align:center;">');
-    printWindow.document.write('التاريخ: ' + new Date().toLocaleString() + ' | المهندس: إبراهيم عبدالله أحمد علي السنمي | الرقم: 778091233</footer>');
-    printWindow.document.write('</body></html>');
+
+    content += `
+            </tbody>
+        </table>
+    `;
+
+    const printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write(content);
     printWindow.document.close();
     printWindow.print();
 }
